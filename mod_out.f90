@@ -6,9 +6,10 @@ module mod_out
 
     contains
 
-    subroutine write_csv(csv_file,totprec_data,totprec_mask_data,points_inside,mapa)
+    subroutine write_csv(csv_file,totprec_data,totprec_mask_data,points_inside,mapa,dataini,datafin)
 
         character(len=*), intent(in) :: csv_file
+        character(len=*), intent(in) :: dataini,datafin
         real, intent(in) :: totprec_data(:,:,:)
         real, intent(in) :: points_inside(:,:)
         character(len=*), intent(in) :: mapa
@@ -50,10 +51,12 @@ module mod_out
 
     end subroutine write_csv
 
-    subroutine write_script(csv_file, png_file)
+    subroutine write_script(csv_file, png_file, dataini, datafin, filecontour)
 
         character(len=*), intent(in) :: csv_file
         character(len=*), intent(in) :: png_file
+        character(len=*), intent(in) :: dataini,datafin
+        character(len=*), intent(in) :: filecontour
         character(len=256) :: filename
         character(len=256) :: mensagem
         integer :: status
@@ -67,10 +70,10 @@ module mod_out
         write(22,*) "set ytics nomirror"
         write(22,*) "set xtics 24"
         write(22,*) "set ylabel 'mm'"
-        write(22,*) "set xlabel 'Horas desde "//
+        write(22,*) "set xlabel 'Horas desde "//dataini
         write(22,*) "set y2label 'mm Acum'"
         write(22,*) "set xrange[1:360]"
-        write(22,*) "set title 'Precipitacao - Area de Contribuicao - Estado do RS'"
+        write(22,*) "set title 'Precipitacao - Area de Contribuicao - "//trim(filecontour)//" - "//dataini//datafin
         write(22,*) "set grid"
         write(22,*) "plot '"//trim(csv_file)//"' using 1:2 axis x1y1 with boxes title 'Prec mm/h' , '"//trim(csv_file)//"' using 1:3 axis x1y2 with lines title 'Prec. acum. mm'"
 
