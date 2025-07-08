@@ -72,15 +72,16 @@ program extract_prec_with_coords
     character(len=256) :: arg1
 
     character(len=256) :: input_file
-    character(len=256) :: output_file
+    character(len=256) :: output_dir
     character(len=256) :: var_name
     character(len=256) :: filename
+    character(len=256) :: contour_dir
     character(len=256) :: filecontour  
     character(len=256) :: mapa
     character(len=256) :: write_all
     character(len=256) :: csv_file 
     character(len=256) :: png_file 
-    character(10) :: dataini,datafin
+    character(12) :: dataini,datafin
 
     integer :: contagem_inicio, contagem_fim, taxa_contagem, contagem_max
     
@@ -92,30 +93,31 @@ program extract_prec_with_coords
     call system_clock(contagem_inicio)
 
     ! Verifica se há argumentos suficientes
-    if (command_argument_count() /= 6) then
-        print *, "Uso: ./extract_prec data_inicial data_final variável arquivo_de_contorno cria_mapa plota_tudo"
-        print *, "Ex:  ./extract_prec 2025061500 2025063000 totprec corumba 0 0"
+    if (command_argument_count() /= 8) then
+        print *, "Uso: ./extract_prec data_inicial data_final variável pasta_contornos nome_contorno pasta_saida cria_mapa plota_tudo"
+        print *, "Ex:  ./extract_prec 2025061500 2025063000 totprec ./tables/contours corumba ./ 0 0"
         stop
     end if
 
     ! Lê os argumentos da linha de comando
-    do i = 1, 6
+    do i = 1, 8
         call get_command_argument(i, arg1)  ! Só usamos arg1 temporariamente
         select case(i)
-            case(1); read(arg1, *) dataini
-            case(2); read(arg1, *) datafin
-            case(3); read(arg1, *) var_name
-            case(4); read(arg1, *) filecontour
-            case(5); read(arg1, *) mapa
-            case(6); read(arg1, *) write_all
+            case(1); dataini = trim(arg1)
+            case(2); datafin = trim(arg1)
+            case(3); var_name = trim(arg1)
+            case(4); contour_dir = trim(arg1)
+            case(5); filecontour = trim(arg1)
+            case(6); output_dir = trim(arg1)
+            case(7); mapa = trim(arg1)
+            case(8); write_all = trim(arg1)
         end select
     end do
     !FRN2025061500-FRN2025063000.nc
     input_file = "FRN"//dataini//"-FRN"//datafin//".nc"
-    output_file = var_name//"-"//trim(input_file)
-    filename = trim(filecontour)//".txt"
-    csv_file = trim(filename(1:len(trim(filename))-4)//"-"//dataini//"-"//datafin//".csv")
-    png_file = trim(filename(1:len(trim(filename))-4)//"-"//dataini//"-"//datafin//".png")
+    filename = trim(contour_dir)//'/'//trim(filecontour)
+    csv_file = trim(output_dir)//"/"//trim(filecontour(1:len(trim(filecontour))-4)//"-"//dataini//"-"//datafin//".csv")
+    png_file = trim(output_dir)//"/"//trim(filecontour(1:len(trim(filecontour))-4)//"-"//dataini//"-"//datafin//".png")
     
     ! Lê o polígono do arquivo
     write(*,*) 'Lendo polígono de entrada...'//trim(filename)
@@ -136,8 +138,8 @@ program extract_prec_with_coords
     write(*,*) 'Escrevendo CSV...'
     call write_csv(csv_file,totprec_data,totprec_mask_data,points_inside,mapa,dataini,datafin)
     
-    write(*,*) 'Escrevendo saída NetCDF...'
-    call process_netCDF_out(output_file,var_name, write_all)
+!    write(*,*) 'Escrevendo saída NetCDF...'
+!    call process_netCDF_out(output_file,var_name, write_all)
 
     write(*,*) 'Escrevendo script gnuplot...'
     call write_script(csv_file, png_file, dataini,datafin,filecontour)
