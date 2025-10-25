@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PREREQ_DIR=${HOME}/opt-gcc
+PREREQ_DIR=${PREREQ_DIR:-${HOME}/opt-gcc}
 
 export PATH=${PREREQ_DIR}/bin:$PATH
 export LD_LIBRARY_PATH=${PREREQ_DIR}/lib:$LD_LIBRARY_PATH
